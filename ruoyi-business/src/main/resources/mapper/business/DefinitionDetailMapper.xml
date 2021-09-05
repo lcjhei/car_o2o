@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.business.mapper.DefinitionDetailMapper">
+    
+    <resultMap type="DefinitionDetail" id="DefinitionDetailResult">
+        <result property="definitionInfoId"    column="definition_info_id"    />
+        <result property="definitionInfo.name"    column="info_name"    />
+        <result property="definitionInfo.description"    column="info_description"    />
+        <result property="deploymentId"    column="deployment_id"    />
+        <result property="deployKey"    column="deployKey"    />
+        <result property="version"    column="version"    />
+        <result property="deployTime"    column="deploy_time"    />
+    </resultMap>
+
+    <sql id="selectDefinitionDetailVo">
+        select definition_info_id, deployment_id, deployKey, version, deploy_time from t_definition_detail
+    </sql>
+
+    <select id="selectDefinitionDetailList" parameterType="DefinitionDetail" resultMap="DefinitionDetailResult">
+        select detail.*, info.`name` info_name, info.description info_description from t_definition_detail detail
+        left join t_definition_info info on info.id = detail.definition_info_id
+    </select>
+    
+    <select id="selectDefinitionDetailById" parameterType="Long" resultMap="DefinitionDetailResult">
+        <include refid="selectDefinitionDetailVo"/>
+        where definition_info_id = #{definitionInfoId}
+    </select>
+        
+    <insert id="insertDefinitionDetail" parameterType="DefinitionDetail">
+        insert into t_definition_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="definitionInfoId != null">definition_info_id,</if>
+            <if test="deploymentId != null and deploymentId != ''">deployment_id,</if>
+            <if test="deployKey != null">deployKey,</if>
+            <if test="version != null">version,</if>
+            <if test="deployTime != null">deploy_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="definitionInfoId != null">#{definitionInfoId},</if>
+            <if test="deploymentId != null and deploymentId != ''">#{deploymentId},</if>
+            <if test="deployKey != null">#{deployKey},</if>
+            <if test="version != null">#{version},</if>
+            <if test="deployTime != null">#{deployTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDefinitionDetail" parameterType="DefinitionDetail">
+        update t_definition_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deploymentId != null and deploymentId != ''">deployment_id = #{deploymentId},</if>
+            <if test="deployKey != null">deployKey = #{deployKey},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="deployTime != null">deploy_time = #{deployTime},</if>
+        </trim>
+        where definition_info_id = #{definitionInfoId}
+    </update>
+
+    <delete id="deleteDefinitionDetailById" parameterType="Long">
+        delete from t_definition_detail where definition_info_id = #{definitionInfoId}
+    </delete>
+
+    <delete id="deleteDefinitionDetailByIds" parameterType="String">
+        delete from t_definition_detail where definition_info_id in 
+        <foreach item="definitionInfoId" collection="array" open="(" separator="," close=")">
+            #{definitionInfoId}
+        </foreach>
+    </delete>
+
+</mapper>

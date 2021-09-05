@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('流程定义明细列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <div class="btn-group-sm" id="toolbar" role="group">
+                            <div id="uploadBtn" class="fileinput fileinput-new" data-provides="fileinput">
+                                <span class="btn btn-outline-secondary btn-file">
+                                    <span class="fileinput-new">
+                                        <a class="btn btn-warning btn-sm"><i class="fa fa-upload"></i>&nbsp;部署</a>
+                                    </span>
+                                    <input type="file" name="file" id="processDefinition" multiple>
+                                </span>
+                                <span class="fileinput-filename"></span>
+                                <a href="#" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">&times;</a>
+                            </div>
+                        </div>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <th:block th:include="include :: jasny-bootstrap-css"/>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: jasny-bootstrap-js"/>
+<script th:inline="javascript">
+    var difinitionId = [[${definitionId}]];//Thymeleaf获取值的语法
+    var editFlag = [[${@permission.hasPermi('business:definitionDetail:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('business:definitionDetail:remove')}]];
+    var prefix = ctx + "business/definitionDetail";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            modalName: "流程定义明细",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'definitionInfoId',
+                    title: '流程定义id',
+                    visible: false
+                },
+                {
+                    field: 'deploymentId',
+                    title: '流程部署id',
+                    visible: false
+                },
+                {
+                    field: 'definitionInfo.name',
+                    title: '流程名称'
+                },
+                {
+                    field: 'deployKey',
+                    title: '部署的key'
+                },
+                {
+                    field: 'definitionInfo.description',
+                    title: '流程描述',
+                    formatter: function(value, row, index) {
+                        return $.table.tooltip(value, 15);
+                    }
+                },
+                {
+                    field: 'version',
+                    title: '版本号'
+                },
+                {
+                    field: 'deployTime',
+                    title: '部署时间'
+                },
+                {
+                    field: 'resourceName',
+                    title: '流程文件',
+                    formatter:function(value, row, index) {
+                        var url = prefix+"/readResource?deploymentId="+row.deploymentId+"&type=xml";
+                        return '<a class="btn btn-info btn-xs " href="' + url + '" target="_blank"><i class="fa fa-search"></i></a> ';
+                    }
+                },
+                {
+                    field: 'diagramResourceName',
+                    title: '流程图',
+                    formatter:function(value, row, index) {
+                        var url = prefix+"/readResource?deploymentId="+row.deploymentId+"&type=png";
+                        return '<a class="btn btn-info btn-xs " href="' + url + '" target="_blank"><i class="fa fa-search"></i></a> ';
+                    }
+                }]
+        };
+        $.table.init(options);
+        $('#uploadBtn').on("change.bs.fileinput",function (e) {
+            var formData = new FormData();
+            formData.append("definitionId",difinitionId);
+            formData.append("file",$('#processDefinition')[0].files[0]);
+            $.ajax({
+                url: prefix + "/upload",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    $('#uploadBtn').fileinput('reset');//重置
+                    $.operate.ajaxSuccess(result);
+                }
+            })
+        })
+    });
+</script>
+</body>
+</html>

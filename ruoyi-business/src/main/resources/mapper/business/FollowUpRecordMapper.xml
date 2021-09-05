@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.business.mapper.FollowUpRecordMapper">
+    
+    <resultMap type="FollowUpRecord" id="FollowUpRecordResult">
+        <result property="id"    column="id"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="chatInformation"    column="chat_information"    />
+        <result property="followUpTime"    column="follow_up_time"    />
+    </resultMap>
+
+    <sql id="selectFollowUpRecordVo">
+        select id, customer_id, chat_information, follow_up_time from t_follow_up_record
+    </sql>
+
+    <select id="selectFollowUpRecordList" parameterType="FollowUpRecord" resultMap="FollowUpRecordResult">
+        <include refid="selectFollowUpRecordVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectFollowUpRecordById" parameterType="Long" resultMap="FollowUpRecordResult">
+        <include refid="selectFollowUpRecordVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertFollowUpRecord" parameterType="FollowUpRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into t_follow_up_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">customer_id,</if>
+            <if test="chatInformation != null">chat_information,</if>
+            <if test="followUpTime != null">follow_up_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">#{customerId},</if>
+            <if test="chatInformation != null">#{chatInformation},</if>
+            <if test="followUpTime != null">#{followUpTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFollowUpRecord" parameterType="FollowUpRecord">
+        update t_follow_up_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="chatInformation != null">chat_information = #{chatInformation},</if>
+            <if test="followUpTime != null">follow_up_time = #{followUpTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFollowUpRecordById" parameterType="Long">
+        delete from t_follow_up_record where id = #{id}
+    </delete>
+
+    <delete id="deleteFollowUpRecordByIds" parameterType="String">
+        delete from t_follow_up_record where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectFollowUpRecordByCustomerId" resultType="com.ruoyi.business.domain.FollowUpRecord" resultMap="FollowUpRecordResult">
+        SELECT
+            fup.id,
+            fup.customer_id,
+            pc.name customerName,
+            fup.chat_information,
+            fup.follow_up_time
+        FROM
+            t_follow_up_record fup
+        RIGHT JOIN t_potential_customer pc ON fup.customer_id = pc.id
+        where fup.customer_id = #{customerId}
+    </select>
+
+</mapper>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('潜在客户列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var potentialCustomerId = [[${potentialCustomerId}]];
+        var editFlag = [[${@permission.hasPermi('business:potentialCustomer:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('business:potentialCustomer:remove')}]];
+        var prefix = ctx + "business/potentialCustomer";
+
+        $(function() {
+            var options = {
+                url: prefix + "/followHistory?potentialCustomerId=" + potentialCustomerId,
+                modalName: "潜在客户",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'followUpTime',
+                    title: '最后跟进时间'
+                },
+                {
+                    field: 'customerName',
+                    title: '客户名称'
+                },
+                {
+                    field: 'chatInformation',
+                    title: '跟进内容'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="deleteFollowHistory(\'' + row.id + '\')"><i class="fa fa-trash"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+
+        function deleteFollowHistory(id) {
+            $.modal.confirm("确定要删除吗?", function() {
+                $.operate.post(prefix + "/deleteFollowHistory?id="+id,function (data) {
+
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增潜在客户')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-potentialCustomer-add">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">客户名称：</label>
+                <div class="col-sm-8">
+                    <input name="name" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">联系方式：</label>
+                <div class="col-sm-8">
+                    <input name="phone" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">备注信息：</label>
+                <div class="col-sm-8">
+                    <input name="info" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "business/potentialCustomer"
+
+        $(function () {
+            $('[name=phone]').change(function () {
+                console.log(1)
+                $.post(prefix + '/checkCustomer','phone='+$('[name=phone]').val(),function (data) {
+                    console.log($('[name=phone]').val())
+                    if (data) {
+                        $('[name=phone]').after('<label style="color: green" class="col-sm-3 control-label" id="checkPhone">可搞</label>')
+                    } else {
+                        $('[name=phone]').after('<label style="color: red" class="col-sm-3 control-label" id="checkPhone">已存在</label>')
+                    }
+                })
+            })
+        })
+
+        $("#form-potentialCustomer-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($('#checkPhone').text()=='可搞') {
+                if ($.validate.form()) {
+                    $.operate.save(prefix + "/add", $('#form-potentialCustomer-add').serialize());
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改流程定义节点信息')" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-definitionNode-edit" th:object="${definitionNode}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="form-group">
+                    <input name="definitionInfoId" th:field="*{definitionInfoId}" class="form-control" type="hidden">
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">节点key：</label>
+                <div class="col-sm-8">
+                    <input name="nodeKey" th:field="*{nodeKey}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">节点描述：</label>
+                <div class="col-sm-8">
+                    <input name="nodeDescription" th:field="*{nodeDescription}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">审核人：</label>
+                <div class="col-sm-8">
+                    <select id="auditorId" class="form-control select2-multiple" multiple name="auditorIds">
+                        <option th:each="auditor:${auditors}" th:value="${auditor.userId}" th:text="${auditor.userName}"></option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: select2-js" />
+
+    <script th:inline="javascript">
+        var auditorIds = [[${auditorIds}]];
+        var prefix = ctx + "business/definitionNode";
+        $("#form-definitionNode-edit").validate({
+            focusCleanup: true
+        });
+
+        $(function () {
+            $('#auditorId').val(auditorIds).trigger('change');
+        })
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-definitionNode-edit').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

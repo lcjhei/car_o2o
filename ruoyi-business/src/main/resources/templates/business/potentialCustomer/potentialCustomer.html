@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('潜在客户列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>客户名称：</label>
+                                <input type="text" name="name"/>
+                            </li>
+                            <li>
+                                <label>联系方式：</label>
+                                <input type="text" name="phone"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="business:potentialCustomer:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('business:potentialCustomer:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('business:potentialCustomer:remove')}]];
+        var prefix = ctx + "business/potentialCustomer";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                modalName: "潜在客户",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'name',
+                    title: '客户名称'
+                },
+                {
+                    field: 'phone',
+                    title: '联系方式'
+                },
+                {
+                    field: 'info',
+                    title: '备注信息'
+                },
+                {
+                    field: 'lastFollowUpTime',
+                    title: '最后跟进时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-warning btn-xs" href="javascript:void(0)" onclick="follow(\'' + row.id + '\')"><i class="fa fa-list"></i> 跟进</a> ');
+                        actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="showFollowHistory(\'' + row.id + '\')"><i class="fa fa-image"></i> 查看跟进历史</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+        function follow(potentialCustomerId) {
+            $.modal.open("跟进",prefix + "/follow?potentialCustomerId="+potentialCustomerId);
+        }
+        function showFollowHistory(potentialCustomerId) {
+            $.modal.open("跟进历史",prefix + "/showFollowHistory?potentialCustomerId="+potentialCustomerId);
+        }
+    </script>
+</body>
+</html>

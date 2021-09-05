@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.business.mapper.CarPackageAuditMapper">
+    
+    <resultMap type="CarPackageAudit" id="CarPackageAuditResult">
+        <result property="id"    column="id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="serviceItemInfo"    column="service_item_info"    />
+        <result property="status"    column="status"    />
+        <result property="instanceId"    column="instance_id"    />
+        <result property="auditors"    column="auditors"    />
+        <result property="processDefinitionId"    column="process_definition_id"    />
+    </resultMap>
+
+    <sql id="selectCarPackageAuditVo">
+        select id, create_by, create_time, service_item_info, status, instance_id, auditors, process_definition_id from t_car_package_audit
+    </sql>
+
+    <select id="selectCarPackageAuditList" parameterType="CarPackageAudit" resultMap="CarPackageAuditResult">
+        SELECT
+        cpa.id,
+        cpa.create_by,
+        su.user_name createByName,
+        cpa.create_time,
+        cpa.service_item_info,
+        cpa.STATUS,
+        cpa.instance_id,
+        cpa.auditors,
+        cpa.process_definition_id
+        FROM
+        t_car_package_audit cpa
+        JOIN sys_user su ON cpa.create_by = su.user_id
+
+        <where>  
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+             and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+             <if test="createBy != null">
+                 and cpa.create_by = #{createBy}
+             </if>
+        </where>
+    </select>
+    
+    <select id="selectCarPackageAuditById" parameterType="Long" resultMap="CarPackageAuditResult">
+        <include refid="selectCarPackageAuditVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCarPackageAudit" parameterType="CarPackageAudit" useGeneratedKeys="true" keyProperty="id">
+        insert into t_car_package_audit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="serviceItemInfo != null">service_item_info,</if>
+            <if test="status != null">status,</if>
+            <if test="instanceId != null">instance_id,</if>
+            <if test="auditors != null">auditors,</if>
+            <if test="processDefinitionId != null">process_definition_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="serviceItemInfo != null">#{serviceItemInfo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="instanceId != null">#{instanceId},</if>
+            <if test="auditors != null">#{auditors},</if>
+            <if test="processDefinitionId != null">#{processDefinitionId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCarPackageAudit" parameterType="CarPackageAudit">
+        update t_car_package_audit
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="serviceItemInfo != null">service_item_info = #{serviceItemInfo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="instanceId != null">instance_id = #{instanceId},</if>
+            <if test="auditors != null">auditors = #{auditors},</if>
+            <if test="processDefinitionId != null">process_definition_id = #{processDefinitionId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCarPackageAuditById" parameterType="Long">
+        delete from t_car_package_audit where id = #{id}
+    </delete>
+
+    <delete id="deleteCarPackageAuditByIds" parameterType="String">
+        delete from t_car_package_audit where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectCarPackageAuditByInstanceId" resultMap="CarPackageAuditResult" resultType="CarPackageAudit">
+        select cpa.id,
+        cpa.create_by,
+        su.user_name createByName,
+        cpa.create_time,
+        cpa.service_item_info,
+        cpa.STATUS,
+        cpa.instance_id,
+        cpa.auditors,
+        cpa.process_definition_id
+        FROM
+        t_car_package_audit cpa
+        JOIN sys_user su ON cpa.create_by = su.user_id
+        where cpa.instance_id = #{instanceId}
+    </select>
+
+</mapper>

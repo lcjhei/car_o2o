@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('流程定义列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>流程名称：</label>
+                                <input type="text" name="name"/>
+                            </li>
+                            <li>
+                                <label>流程key：</label>
+                                <input type="text" name="definitionKey"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('business:definitionInfo:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('business:definitionInfo:remove')}]];
+        var prefix = ctx + "business/definitionInfo";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "流程定义",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: '流程key',
+                    visible: false
+                },
+                {
+                    field: 'name',
+                    title: '流程名称'
+                },
+                {
+                    field: 'definitionKey',
+                    title: '流程key'
+                },
+                {
+                    field: 'description',
+                    title: '流程描述'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        //点击跳转到流程定义明细页面
+                        actions.push('<a class="btn btn-success btn-xs " href="javascript:void(0)" onclick="openDetail(\'' + row.id + '\')"><i class="fa fa-bars"></i>部署列表</a> ');
+                        //点击跳转到节点人员页面
+                        actions.push('<a class="btn btn-success btn-xs " href="javascript:void(0)" onclick="openNode(\'' + row.id + '\')"><i class="fa fa-user"></i>人员列表</a> ');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+        function openDetail(definitionId){
+            $.modal.openTab("流程定义明细","/business/definitionDetail?definitionId="+definitionId);
+        }
+        function openNode(definitionId){
+            $.modal.openTab("节点人员列表","/business/definitionNode?definitionId="+definitionId);
+        }
+    </script>
+</body>
+</html>
